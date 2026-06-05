@@ -4,83 +4,99 @@ if (!isset($_SESSION['login']) || $_SESSION['peran'] !== 'admin') {
     header("Location: index.php"); exit;
 }
 require_once 'config.php';
-$page_title = 'Backup Database';
-$msg = '';
 
 // ============================================================
-// BACKUP DATABASE MANUAL
-// Menggunakan mysqldump via PHP exec(), atau fallback PHP-native
+// BACKUP DATABASE
+// Pakai variabel dari config.php: $host, $user, $pass, $db
 // ============================================================
 if (isset($_GET['do_backup'])) {
-    $backup_dir  = __DIR__ . '/backups/';
+    $backup_dir = __DIR__ . '/backups/';
     if (!is_dir($backup_dir)) mkdir($backup_dir, 0755, true);
 
-    $filename    = 'camprent_backup_' . date('Y-m-d_His') . '.sql';
-    $filepath    = $backup_dir . $filename;
+    $filename = 'camprent_backup_' . date('Y-m-d_His') . '.sql';
+    $filepath = $backup_dir . $filename;
 
-    // Coba gunakan mysqldump (tersedia di server Linux/Mac)
-    $mysqldump_cmd = "mysqldump --user=" . DB_USER . " --password=" . DB_PASS . " --host=" . DB_HOST . " " . DB_NAME . " > " . escapeshellarg($filepath) . " 2>&1";
-    
-    $use_mysqldump = false;
+    // Coba pakai mysqldump dulu
+    $use_dump = false;
     if (function_exists('exec')) {
-        exec("which mysqldump", $out, $ret);
-        $use_mysqldump = ($ret === 0);
+        exec("which mysqldump 2>&1", $out, $ret);
+        // Di Windows Laragon, mysqldump ada di PATH
+        if ($ret !== 0) {
+            exec("mysqldump --version 2>&1", $out2, $ret2);
+            $use_dump = ($ret2 === 0);
+        } else {
+            $use_dump = true;
+        }
     }
 
-    if ($use_mysqldump) {
-        exec($mysqldump_cmd, $output, $return_code);
-        $sukses = ($return_code === 0 && file_exists($filepath) && filesize($filepath) > 100);
+    if ($use_dump) {
+        $cmd = "mysqldump --user={$user} --password={$pass} --host={$host} {$db} > " . escapeshellarg($filepath) . " 2>&1";
+        exec($cmd, $output, $rc);
+        $sukses = ($rc === 0 && file_exists($filepath) && filesize($filepath) > 100);
     } else {
-        // Fallback: PHP native backup
+        $sukses = false;
+    }
+
+    // Fallback: PHP native backup (selalu bisa jalan)
+    if (!$sukses) {
         $tables = mysqli_query($conn, "SHOW TABLES");
-        $sql = "-- CampRent Database Backup\n-- Generated: " . date('Y-m-d H:i:s') . "\n-- Server: " . DB_HOST . "\n\nSET FOREIGN_KEY_CHECKS=0;\n\n";
-        
-        while($t = mysqli_fetch_array($tables)) {
-            $table = $t[0];
-            // CREATE TABLE
-            $create = mysqli_fetch_assoc(mysqli_query($conn, "SHOW CREATE TABLE `$table`"));
-            $sql .= "\n-- Table: $table\nDROP TABLE IF EXISTS `$table`;\n";
-            $sql .= $create['Create Table'] . ";\n\n";
-            // Data
-            $rows = mysqli_query($conn, "SELECT * FROM `$table`");
-            $num_fields = mysqli_num_fields($rows);
-            while($row = mysqli_fetch_row($rows)) {
-                $sql .= "INSERT INTO `$table` VALUES (";
-                for($i=0; $i<$num_fields; $i++) {
-                    $val = $row[$i];
-                    if ($val === null) $sql .= "NULL";
-                    else $sql .= "'" . mysqli_real_escape_string($conn, $val) . "'";
-                    if ($i < $num_fields - 1) $sql .= ",";
+        $sql  = "-- CampRent Database Backup\n";
+        $sql .= "-- Dibuat: " . date('Y-m-d H:i:s') . "\n\n";
+        $sql .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+
+        while ($t = mysqli_fetch_array($tables)) {
+            $tbl = $t[0];
+
+            // Struktur tabel
+            $create_res = mysqli_query($conn, "SHOW CREATE TABLE `$tbl`");
+            $create_row = mysqli_fetch_assoc($create_res);
+            $sql .= "-- Tabel: $tbl\n";
+            $sql .= "DROP TABLE IF EXISTS `$tbl`;\n";
+            $sql .= $create_row['Create Table'] . ";\n\n";
+
+            // Data tabel
+            $rows = mysqli_query($conn, "SELECT * FROM `$tbl`");
+            $ncols = mysqli_num_fields($rows);
+            while ($row = mysqli_fetch_row($rows)) {
+                $vals = [];
+                for ($i = 0; $i < $ncols; $i++) {
+                    if ($row[$i] === null) {
+                        $vals[] = "NULL";
+                    } else {
+                        $vals[] = "'" . mysqli_real_escape_string($conn, $row[$i]) . "'";
+                    }
                 }
-                $sql .= ");\n";
+                $sql .= "INSERT INTO `$tbl` VALUES (" . implode(",", $vals) . ");\n";
             }
             $sql .= "\n";
         }
         $sql .= "SET FOREIGN_KEY_CHECKS=1;\n";
+
         file_put_contents($filepath, $sql);
         $sukses = file_exists($filepath) && filesize($filepath) > 50;
     }
 
     if ($sukses) {
-        // Catat di log_backup
         $ukuran = round(filesize($filepath) / 1024, 2);
-        mysqli_query($conn, "INSERT INTO log_backup (status, keterangan) VALUES ('sukses', 'Backup manual: $filename, Ukuran: {$ukuran}KB')");
-        mysqli_query($conn, "INSERT INTO log_aktivitas (id_pengguna, aksi, detail) VALUES ({$_SESSION['id_pengguna']}, 'BACKUP', 'Backup database: $filename')");
-        
-        // Download langsung
+        mysqli_query($conn, "INSERT INTO log_backup (status, keterangan) 
+                              VALUES ('sukses', 'Backup: $filename | Ukuran: {$ukuran} KB')");
+
+        // Download file ke browser
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Content-Length: ' . filesize($filepath));
         readfile($filepath);
         exit;
     } else {
-        $msg = "danger:Backup gagal! Pastikan direktori backups/ bisa ditulis.";
+        $pesan = urlencode("danger:Backup gagal. Coba cek folder backups/ bisa ditulis.");
+        header("Location: backup_db.php?msg=$pesan");
+        exit;
     }
 }
 
-// Log backup terakhir
+// Ambil riwayat backup
 $logs = mysqli_query($conn, "SELECT * FROM log_backup ORDER BY id_log DESC LIMIT 10");
-$msg = isset($_GET['msg']) ? $_GET['msg'] : $msg;
+$msg  = isset($_GET['msg']) ? $_GET['msg'] : '';
 ?>
 <?php include 'header.php'; ?>
 </head>
@@ -112,92 +128,103 @@ $msg = isset($_GET['msg']) ? $_GET['msg'] : $msg;
     <div class="topbar"><div class="topbar-title">Backup & Pemulihan Database</div></div>
     <div class="page-body">
 
-        <?php if($msg): 
+        <?php if(!empty($msg)): 
             list($type, $text) = explode(':', $msg, 2);
+            $alert_class = ($type === 'success' || $type === 'sukses') ? 'alert-success' : 'alert-danger';
+            $icon_class = ($type === 'success' || $type === 'sukses') ? 'fa-check-circle' : 'fa-times-circle';
         ?>
-        <div class="alert alert-<?= $type ?>"><i class="fas fa-info-circle"></i> <?= $text ?></div>
+        <div class="alert <?= $alert_class ?>" style="display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-radius: 8px; font-size: 14px; margin-bottom: 20px;">
+            <i class="fas <?= $icon_class ?> fa-lg"></i> 
+            <div><?= $text ?></div>
+        </div>
         <?php endif; ?>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
 
-            <!-- Manual Backup -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-download" style="color:#2980b9;margin-right:8px;"></i> Backup Manual</span>
+                <div class="card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--border);">
+                    <span class="card-title" style="font-family:'Sora', sans-serif; font-weight:700; color:var(--forest);"><i class="fas fa-download" style="color:var(--forest-mid); margin-right:8px;"></i> Backup Manual</span>
                 </div>
-                <div class="card-body">
-                    <p style="font-size:14px;color:#5a6b5a;line-height:1.7;margin-bottom:20px;">
-                        Klik tombol di bawah untuk langsung mengunduh file SQL backup database CampRent saat ini. 
-                        Sistem akan menggunakan <strong>mysqldump</strong> (jika tersedia) atau <strong>PHP native backup</strong>.
+                <div class="card-body" style="padding: 24px;">
+                    <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:24px;">
+                        Klik tombol di bawah untuk langsung membuat dan mengunduh berkas salinan cadangan berkode `.sql` dari database CampRent saat ini. File cadangan ini dapat digunakan untuk memulihkan seluruh data jika sewaktu-waktu terjadi kerusakan sistem.
                     </p>
-                    <a href="backup_db.php?do_backup=1" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;">
-                        <i class="fas fa-download"></i> Download Backup SQL Sekarang
+                    <a href="backup_db.php?do_backup=1" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:600; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-cloud-download-alt"></i> Download Backup SQL Sekarang
                     </a>
                 </div>
             </div>
 
-            <!-- Backup Otomatis -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-clock" style="color:#27ae60;margin-right:8px;"></i> Backup Otomatis (Task Scheduler)</span>
+                <div class="card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--border);">
+                    <span class="card-title" style="font-family:'Sora', sans-serif; font-weight:700; color:var(--forest);"><i class="fas fa-clock" style="color:var(--earth-light); margin-right:8px;"></i> Otomatisasi (Task Scheduler)</span>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info" style="margin-bottom:16px;">
-                        <i class="fas fa-calendar-check"></i>
-                        <div>MySQL Event Scheduler <strong>evt_backup_harian</strong> berjalan setiap pukul 00:00 mencatat jadwal backup ke tabel <code>log_backup</code>.</div>
+                <div class="card-body" style="padding: 24px;">
+                    <div class="alert alert-info" style="margin-bottom:16px; background:#e3f2fd; color:#0d47a1; border-left:4px solid #1976d2; padding:12px 16px; border-radius:6px; font-size:12px; display:flex; gap:10px; align-items:flex-start;">
+                        <i class="fas fa-calendar-check" style="margin-top:2px;"></i>
+                        <div>MySQL Event Scheduler <code>evt_backup_harian</code> dikonfigurasi berjalan otomatis di latar belakang setiap pukul 00:00 malam.</div>
                     </div>
-                    <p style="font-size:13px;color:#5a6b5a;margin-bottom:16px;">Untuk backup file SQL otomatis di server Linux, tambahkan cron job berikut:</p>
-                    <div style="background:#1a3a2a;color:#a8d5b5;padding:14px 16px;border-radius:8px;font-family:monospace;font-size:12px;line-height:1.8;">
-                        <div style="color:#c49a2a;font-size:10px;margin-bottom:6px;"># Crontab (crontab -e) — jalankan tiap malam pukul 00:00</div>
-                        0 0 * * * php <?= __DIR__ ?>/scheduler/backup_scheduler.php<br>
-                        <br>
-                        <div style="color:#c49a2a;font-size:10px;margin-bottom:6px;"># Atau mysqldump langsung:</div>
-                        0 0 * * * mysqldump -u root camprent > /var/backups/camprent_$(date +\%F).sql
+                    <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px; font-weight:500;">Perintah otomatisasi Cron Job pada sistem operasi Server Linux:</p>
+                    <div style="background:#1e2522; color:#a3bdae; padding:14px; border-radius:8px; font-family:monospace; font-size:11px; line-height:1.6; border:1px solid #2d3833;">
+                        <span style="color:#c49a2a; font-size:11px; display:block; margin-bottom:4px;"># Eksekusi via scheduler php internal</span>
+                        0 0 * * * php <?= __DIR__ ?>/scheduler/backup_scheduler.php
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Cara Restore -->
-        <div class="card section-gap">
-            <div class="card-header">
-                <span class="card-title"><i class="fas fa-undo" style="color:#e67e22;margin-right:8px;"></i> Cara Restore Database</span>
+        <div class="card section-gap" style="margin-bottom:24px;">
+            <div class="card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--border);">
+                <span class="card-title" style="font-family:'Sora', sans-serif; font-weight:700; color:var(--forest);"><i class="fas fa-undo" style="color:var(--warning); margin-right:8px;"></i> Panduan Pemulihan Data (Restore)</span>
             </div>
-            <div class="card-body">
-                <p style="font-size:13px;color:#5a6b5a;margin-bottom:12px;">Untuk memulihkan database dari file backup SQL:</p>
-                <div style="background:#1a3a2a;color:#a8d5b5;padding:14px 16px;border-radius:8px;font-family:monospace;font-size:12px;line-height:2;">
-                    <span style="color:#c49a2a;"># Via terminal MySQL:</span><br>
-                    mysql -u root -p camprent &lt; camprent_backup_YYYY-MM-DD.sql<br>
-                    <br>
-                    <span style="color:#c49a2a;"># Via phpMyAdmin:</span><br>
-                    Pilih database camprent → klik "Import" → upload file .sql
+            <div class="card-body" style="padding: 24px;">
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">Jika ingin memulihkan keadaan basis data menggunakan file berkas SQL hasil unduhan:</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div style="background:#f8faf8; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                        <strong style="font-size:12px; color:var(--forest); display:block; margin-bottom:6px;"><i class="fas fa-terminal"></i> Metode Perintah Terminal CLI:</strong>
+                        <code style="font-size:11px; color:var(--danger); background:#fff; padding:4px 6px; border:1px solid #f0f0f0; border-radius:4px; display:block; word-break:break-all;">mysql -u root -p camprent < berkas_backup.sql</code>
+                    </div>
+                    <div style="background:#f8faf8; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                        <strong style="font-size:12px; color:var(--forest); display:block; margin-bottom:6px;"><i class="fas fa-globe"></i> Metode Antarmuka phpMyAdmin:</strong>
+                        <span style="font-size:12px; color:var(--text-muted);">Pilih DB <strong>camprent</strong> &rarr; Klik tab menu <strong>Import</strong> &rarr; Pilih file SQL &rarr; Klik tombol <strong>Kirim/Go</strong>.</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Log Backup -->
         <div class="card">
-            <div class="card-header">
-                <span class="card-title"><i class="fas fa-list-alt" style="color:#5a8a5a;margin-right:8px;"></i> Riwayat Backup (10 Terakhir)</span>
+            <div class="card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                <span class="card-title" style="font-family:'Sora', sans-serif; font-weight:700; color:var(--forest);"><i class="fas fa-list-alt" style="color:var(--forest-mid); margin-right:8px;"></i> Log Riwayat Aktivitas Salinan Sistem</span>
+                <span style="font-size:11px; color:var(--text-muted); background:#fafafa; border:1px solid var(--border); padding:2px 8px; border-radius:4px;">10 log terakhir</span>
             </div>
             <div class="table-wrapper">
-                <table>
+                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:14px;">
                     <thead>
                         <tr>
-                            <th>Waktu Backup</th>
-                            <th>Status</th>
-                            <th>Keterangan</th>
+                            <th style="padding:12px 16px;">Waktu Operasi</th>
+                            <th style="padding:12px 16px; width:120px;">Status</th>
+                            <th style="padding:12px 16px;">Rincian Keterangan File</th>
                         </tr>
                     </thead>
                     <tbody>
                     <?php if(mysqli_num_rows($logs) === 0): ?>
-                        <tr><td colspan="3"><div class="empty-state"><i class="fas fa-history"></i><p>Belum ada riwayat backup</p></div></td></tr>
+                        <tr>
+                            <td colspan="3">
+                                <div class="empty-state" style="text-align:center; padding:40px; color:var(--text-muted);">
+                                    <i class="fas fa-history fa-2x" style="opacity:0.3; margin-bottom:10px; display:block;"></i>
+                                    <p style="font-size:13px;">Belum ditemukan adanya catatan riwayat backup dalam database.</p>
+                                </div>
+                            </td>
+                        </tr>
                     <?php endif; ?>
                     <?php while($l = mysqli_fetch_assoc($logs)): ?>
                     <tr>
-                        <td style="font-size:13px;"><?= date('d M Y H:i:s', strtotime($l['waktu_backup'])) ?></td>
-                        <td><span class="badge <?= $l['status'] === 'sukses' ? 'badge-green' : 'badge-red' ?>"><?= $l['status'] ?></span></td>
-                        <td style="font-size:12px;color:#5a6b5a;"><?= htmlspecialchars($l['keterangan']) ?></td>
+                        <td style="padding:14px 16px; font-size:13px; font-weight:500; color:var(--text);"><?= date('d M Y H:i:s', strtotime($l['waktu_backup'])) ?></td>
+                        <td style="padding:14px 16px;">
+                            <?php $badge_status = ($l['status'] === 'sukses') ? 'badge-green' : 'badge-red'; ?>
+                            <span class="badge <?= $badge_status ?>" style="font-size:11px; font-weight:600; text-transform:uppercase;"><?= htmlspecialchars($l['status']) ?></span>
+                        </td>
+                        <td style="padding:14px 16px; font-size:12px; color:var(--text-muted);"><?= htmlspecialchars($l['keterangan']) ?></td>
                     </tr>
                     <?php endwhile; ?>
                     </tbody>
