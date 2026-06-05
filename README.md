@@ -170,17 +170,14 @@ Tabel utama:
 
 ### 1. Clone Repository
 
-```bash
 git clone https://github.com/username/uap-pdt-camprent.git
-```
 
 ### 2. Import Database
 
 Import file:
 
-```text
+text
 database.sql
-```
 
 ke MySQL menggunakan phpMyAdmin atau CLI.
 
@@ -193,15 +190,14 @@ Aktifkan:
 
 ### 4. Simpan Project
 
-```text
+text
 C:\laragon\www\camprent
-```
 
 ### 5. Akses Sistem
 
-```text
+text
 http://localhost/camprent
-```
+
 
 
 
