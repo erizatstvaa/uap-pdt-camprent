@@ -160,20 +160,6 @@ require_once 'header.php';
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title"><i class="fas fa-bolt"></i> Menu Cepat Tindakan</div>
-            </div>
-            <div class="card-body">
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <a href="kelola_alat.php" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Alat</a>
-                    <a href="proses_transaksi.php" class="btn btn-success"><i class="fas fa-check"></i> Proses Pengembalian</a>
-                    <a href="laporan_transaksi.php" class="btn btn-outline"><i class="fas fa-file-alt"></i> Lihat Laporan</a>
-                    <a href="backup_db.php" class="btn btn-warning"><i class="fas fa-database"></i> Backup DB</a>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
