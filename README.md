@@ -65,8 +65,7 @@ CampRent adalah sistem penyewaan peralatan camping berbasis web yang dirancang u
 
 ### Nama Trigger
 
-`trigger_pengembalian_alat`
-
+trigger_pengembalian_alat
 ### Fungsi
 
 Trigger dijalankan secara otomatis ketika status penyewaan berubah menjadi **"Dikembalikan"**.
@@ -78,15 +77,14 @@ Trigger dijalankan secara otomatis ketika status penyewaan berubah menjadi **"Di
 
 ### Lokasi
 
-Database MySQL → Trigger `trigger_pengembalian_alat`
-
+Database MySQL → Trigger  trigger_pengembalian_alat
 
 
 ## 2. Task Scheduler
 
 ### Nama Event
 
-`event_cek_keterlambatan`
+event_cek_keterlambatan
 
 ### Fungsi
 
@@ -156,7 +154,7 @@ Mengurangi risiko kehilangan data akibat kerusakan sistem atau kesalahan penggun
 
 ## Struktur Database
 
-Database: `camprent`
+Database: camprent
 
 Tabel utama:
 
