@@ -7,9 +7,14 @@ CampRent adalah sistem penyewaan peralatan camping berbasis web yang dirancang u
 ---
 
 ## Anggota Kelompok
-2217051159	Eriza Trisativa
-2217051011	Ayu Puspitasari
-2217051134	Jefri Raihan Akbar
+- 2217051159  
+  Eriza Trisativa
+
+- 2217051011  
+  Ayu Puspitasari
+
+- 2217051134  
+  Jefri Raihan Akbar
 
 
 ## Teknologi yang Digunakan
