@@ -43,7 +43,7 @@ CREATE TABLE `alat_camping` (
 
 LOCK TABLES `alat_camping` WRITE;
 /*!40000 ALTER TABLE `alat_camping` DISABLE KEYS */;
-INSERT INTO `alat_camping` VALUES (1,'Tenda Dome 4 Orang','Tenda','Tenda dome kapasitas 4 orang, waterproof, cocok untuk segala cuaca',50000.00,10,10,'baik','2026-06-04 07:19:24'),(2,'Tenda Bivak 2 Orang','Tenda','Tenda ringan 2 orang, sangat portable untuk pendakian',35000.00,0,8,'baik','2026-06-04 07:19:24'),(3,'Carrier 60L Osprey','Tas','Carrier gunung kapasitas 60L, ergonomis dan tahan lama',30000.00,13,15,'baik','2026-06-04 07:19:24'),(4,'Daypack 30L','Tas','Tas punggung 30L untuk pendakian harian atau day hiking',20000.00,10,12,'baik','2026-06-04 07:19:24'),(5,'Sleeping Bag -5??C','Perlengkapan Tidur','Sleeping bag untuk suhu hingga -5??C, cocok untuk gunung tinggi',25000.00,19,20,'baik','2026-06-04 07:19:24'),(6,'Matras EVA','Perlengkapan Tidur','Matras foam ringan untuk alas tidur di alam bebas',10000.00,25,25,'baik','2026-06-04 07:19:24'),(7,'Kompor Portable Gas','Memasak','Kompor portable berbahan bakar gas, ringan dan efisien',15000.00,10,12,'baik','2026-06-04 07:19:24'),(8,'Nesting/Cookset Aluminium','Memasak','Set peralatan masak lengkap dari aluminium, isi 4 pcs',20000.00,9,10,'baik','2026-06-04 07:19:24'),(9,'Headlamp 500 Lumen','Penerangan','Lampu kepala LED 500 lumen, tahan air, baterai AA',10000.00,28,30,'baik','2026-06-04 07:19:24'),(10,'Trekking Pole','Aksesoris','Tongkat pendakian aluminium, adjustable, per pasang',15000.00,16,18,'baik','2026-06-04 07:19:24');
+INSERT INTO `alat_camping` VALUES (1,'Tenda Dome 4 Orang','Tenda','Tenda dome kapasitas 4 orang, waterproof, cocok untuk segala cuaca',50000.00,10,10,'baik','2026-06-04 07:19:24'),(2,'Tenda Bivak 2 Orang','Tenda','Tenda ringan 2 orang, sangat portable untuk pendakian',35000.00,0,8,'baik','2026-06-04 07:19:24'),(3,'Carrier 60L Osprey','Tas','Carrier gunung kapasitas 60L, ergonomis dan tahan lama',30000.00,13,15,'baik','2026-06-04 07:19:24'),(4,'Daypack 30L','Tas','Tas punggung 30L untuk pendakian harian atau day hiking',20000.00,10,12,'baik','2026-06-04 07:19:24'),(5,'Sleeping Bag -5??C','Perlengkapan Tidur','Sleeping bag untuk suhu hingga -5??C, cocok untuk gunung tinggi',25000.00,19,20,'baik','2026-06-04 07:19:24'),(6,'Matras EVA','Perlengkapan Tidur','Matras foam ringan untuk alas tidur di alam bebas',10000.00,19,25,'baik','2026-06-04 07:19:24'),(7,'Kompor Portable Gas','Memasak','Kompor portable berbahan bakar gas, ringan dan efisien',15000.00,10,12,'baik','2026-06-04 07:19:24'),(8,'Nesting/Cookset Aluminium','Memasak','Set peralatan masak lengkap dari aluminium, isi 4 pcs',20000.00,9,10,'baik','2026-06-04 07:19:24'),(9,'Headlamp 500 Lumen','Penerangan','Lampu kepala LED 500 lumen, tahan air, baterai AA',10000.00,28,30,'baik','2026-06-04 07:19:24'),(10,'Trekking Pole','Aksesoris','Tongkat pendakian aluminium, adjustable, per pasang',15000.00,16,18,'baik','2026-06-04 07:19:24');
 /*!40000 ALTER TABLE `alat_camping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `detail_penyewaan` (
   KEY `id_alat` (`id_alat`),
   CONSTRAINT `detail_penyewaan_ibfk_1` FOREIGN KEY (`id_penyewaan`) REFERENCES `penyewaan` (`id_penyewaan`) ON DELETE CASCADE,
   CONSTRAINT `detail_penyewaan_ibfk_2` FOREIGN KEY (`id_alat`) REFERENCES `alat_camping` (`id_alat`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `detail_penyewaan` (
 
 LOCK TABLES `detail_penyewaan` WRITE;
 /*!40000 ALTER TABLE `detail_penyewaan` DISABLE KEYS */;
-INSERT INTO `detail_penyewaan` VALUES (1,4,5,1,25000.00),(2,5,8,1,20000.00),(3,6,4,1,20000.00),(4,7,10,1,15000.00),(5,8,9,1,10000.00),(6,9,7,1,15000.00),(7,14,2,1,35000.00),(8,15,2,1,35000.00),(9,16,2,1,35000.00),(10,17,2,1,35000.00),(11,18,3,1,30000.00);
+INSERT INTO `detail_penyewaan` VALUES (1,4,5,1,25000.00),(2,5,8,1,20000.00),(3,6,4,1,20000.00),(4,7,10,1,15000.00),(5,8,9,1,10000.00),(6,9,7,1,15000.00),(7,14,2,1,35000.00),(8,15,2,1,35000.00),(9,16,2,1,35000.00),(10,17,2,1,35000.00),(11,18,3,1,30000.00),(12,19,6,1,10000.00),(13,20,6,1,10000.00),(14,21,6,1,10000.00);
 /*!40000 ALTER TABLE `detail_penyewaan` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -175,7 +175,7 @@ CREATE TABLE `log_backup` (
   `status` varchar(20) DEFAULT 'sukses',
   `keterangan` text,
   PRIMARY KEY (`id_log`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,6 +184,7 @@ CREATE TABLE `log_backup` (
 
 LOCK TABLES `log_backup` WRITE;
 /*!40000 ALTER TABLE `log_backup` DISABLE KEYS */;
+INSERT INTO `log_backup` VALUES (1,'2026-06-05 12:41:42','sukses','Backup: camprent_backup_2026-06-05_124137.sql | Ukuran: 20.74 KB'),(2,'2026-06-05 12:50:29','sukses','Backup: camprent_backup_2026-06-05_125025.sql | Ukuran: 20.89 KB'),(3,'2026-06-05 12:57:24','sukses','Backup: camprent_backup_2026-06-05_125722.sql | Ukuran: 20.99 KB');
 /*!40000 ALTER TABLE `log_backup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -267,7 +268,7 @@ CREATE TABLE `penyewaan` (
   PRIMARY KEY (`id_penyewaan`),
   KEY `id_pelanggan` (`id_pelanggan`),
   CONSTRAINT `penyewaan_ibfk_1` FOREIGN KEY (`id_pelanggan`) REFERENCES `pengguna` (`id_pengguna`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -276,7 +277,7 @@ CREATE TABLE `penyewaan` (
 
 LOCK TABLES `penyewaan` WRITE;
 /*!40000 ALTER TABLE `penyewaan` DISABLE KEYS */;
-INSERT INTO `penyewaan` VALUES (1,3,'2026-06-04','2026-06-05',50000.00,'disewa',NULL,'2026-06-04 07:26:02'),(2,3,'2026-06-04','2026-06-05',50000.00,'disewa',NULL,'2026-06-04 14:29:56'),(3,3,'2026-06-04','2026-06-05',25000.00,'disewa',NULL,'2026-06-04 14:30:11'),(4,3,'2026-06-04','2026-06-05',25000.00,'dikembalikan',NULL,'2026-06-04 14:33:01'),(5,3,'2026-06-04','2026-06-05',20000.00,'dikembalikan',NULL,'2026-06-04 14:33:18'),(6,3,'2026-06-04','2026-06-05',20000.00,'disewa',NULL,'2026-06-04 14:33:20'),(7,3,'2026-06-04','2026-06-05',15000.00,'disewa',NULL,'2026-06-04 14:33:23'),(8,3,'2026-06-04','2026-06-05',10000.00,'disewa',NULL,'2026-06-04 14:33:27'),(9,3,'2026-06-04','2026-06-05',15000.00,'disewa',NULL,'2026-06-04 14:33:29'),(10,3,'2026-06-04','2026-06-05',15000.00,'disewa',NULL,'2026-06-04 14:33:53'),(11,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:45:56'),(12,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:47:50'),(13,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:48:51'),(14,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:50:37'),(15,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:52:08'),(16,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:52:50'),(17,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:58:18'),(18,2,'2026-06-04','2026-06-08',120000.00,'disewa',NULL,'2026-06-04 15:05:20');
+INSERT INTO `penyewaan` VALUES (1,3,'2026-06-04','2026-06-05',50000.00,'disewa',NULL,'2026-06-04 07:26:02'),(2,3,'2026-06-04','2026-06-05',50000.00,'disewa',NULL,'2026-06-04 14:29:56'),(3,3,'2026-06-04','2026-06-05',25000.00,'disewa',NULL,'2026-06-04 14:30:11'),(4,3,'2026-06-04','2026-06-05',25000.00,'dikembalikan',NULL,'2026-06-04 14:33:01'),(5,3,'2026-06-04','2026-06-05',20000.00,'dikembalikan',NULL,'2026-06-04 14:33:18'),(6,3,'2026-06-04','2026-06-05',20000.00,'disewa',NULL,'2026-06-04 14:33:20'),(7,3,'2026-06-04','2026-06-05',15000.00,'disewa',NULL,'2026-06-04 14:33:23'),(8,3,'2026-06-04','2026-06-05',10000.00,'disewa',NULL,'2026-06-04 14:33:27'),(9,3,'2026-06-04','2026-06-05',15000.00,'disewa',NULL,'2026-06-04 14:33:29'),(10,3,'2026-06-04','2026-06-05',15000.00,'disewa',NULL,'2026-06-04 14:33:53'),(11,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:45:56'),(12,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:47:50'),(13,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:48:51'),(14,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:50:37'),(15,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:52:08'),(16,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:52:50'),(17,2,'2026-06-04','2026-06-05',35000.00,'disewa',NULL,'2026-06-04 14:58:18'),(18,2,'2026-06-04','2026-06-08',120000.00,'disewa',NULL,'2026-06-04 15:05:20'),(19,2,'2026-06-05','2026-06-12',70000.00,'disewa',NULL,'2026-06-05 13:16:11'),(20,2,'2026-06-05','2026-06-12',70000.00,'disewa',NULL,'2026-06-05 13:34:22'),(21,2,'2026-06-05','2026-06-12',70000.00,'disewa',NULL,'2026-06-05 13:46:12');
 /*!40000 ALTER TABLE `penyewaan` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -396,4 +397,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-05 19:41:42
+-- Dump completed on 2026-06-05 20:46:33
