@@ -4,6 +4,8 @@
 
 CampRent adalah sistem penyewaan peralatan camping berbasis web yang dirancang untuk membantu proses pengelolaan penyewaan alat camping secara lebih efektif dan terkomputerisasi. Sistem ini memungkinkan pelanggan melakukan pemesanan alat camping secara online, sedangkan admin dapat mengelola data alat, transaksi penyewaan, pengembalian, serta laporan penyewaan.
 
+Selain itu, admin juga dapat mengelola data alat camping, data pelanggan, transaksi penyewaan, pengembalian alat, hingga laporan penyewaan dalam satu sistem. Dengan adanya sistem ini, proses pendataan menjadi lebih rapi, mengurangi kesalahan pencatatan manual, serta membantu meningkatkan efisiensi dalam pengelolaan penyewaan alat camping.
+
 
 
 ## Anggota Kelompok
@@ -68,13 +70,12 @@ CampRent adalah sistem penyewaan peralatan camping berbasis web yang dirancang u
 trigger_pengembalian_alat
 ### Fungsi
 
-Trigger dijalankan secara otomatis ketika status penyewaan berubah menjadi **"Dikembalikan"**.
+Trigger ini digunakan untuk memperbarui data secara otomatis saat alat camping sudah dikembalikan oleh pelanggan.
 
 ### Implementasi
 
-* Menambahkan kembali stok alat yang telah dikembalikan.
-* Memastikan jumlah stok selalu sesuai dengan kondisi aktual.
-
+* Mengembalikan jumlah stok alat setelah proses pengembalian dilakukan.
+* Membantu menjaga data stok agar tetap sesuai dengan kondisi sebenarnya di sistem.
 ### Lokasi
 
 Database MySQL → Trigger  trigger_pengembalian_alat
@@ -88,12 +89,12 @@ event_cek_keterlambatan
 
 ### Fungsi
 
-Event Scheduler dijalankan otomatis setiap hari untuk memeriksa data penyewaan yang telah melewati tanggal pengembalian.
+Event Scheduler ini dipakai untuk melakukan pengecekan otomatis pada data penyewaan yang sudah melewati batas waktu pengembalian alat.
 
 ### Implementasi
 
-* Mengecek penyewaan yang belum dikembalikan.
-* Mengubah status menjadi **"Terlambat"** secara otomatis.
+* Memeriksa data penyewaan yang status pengembaliannya masih belum selesai.
+* Mengubah status penyewaan menjadi “Terlambat” secara otomatis apabila melewati tanggal pengembalian.
 
 ### Lokasi
 
@@ -105,7 +106,7 @@ Database MySQL → Event Scheduler
 
 ### Fragmentasi Horizontal
 
-Data penyewaan dipisahkan berdasarkan status transaksi sehingga proses pencarian data aktif menjadi lebih cepat.
+Data penyewaan dikelompokkan berdasarkan status transaksi agar proses pencarian dan pengelolaan data menjadi lebih mudah dan cepat.
 
 Contoh:
 
@@ -115,7 +116,7 @@ Contoh:
 
 ### Fragmentasi Vertikal
 
-Data laporan hanya menampilkan atribut yang diperlukan.
+Pada bagian laporan, sistem hanya menampilkan data yang diperlukan sehingga informasi lebih ringkas dan mudah dibaca.
 
 Contoh atribut:
 
@@ -127,8 +128,8 @@ Contoh atribut:
 
 ### Tujuan
 
-* Mengurangi data yang diproses saat query dijalankan.
-* Meningkatkan efisiensi akses data.
+* Mengurangi jumlah data yang diproses saat menjalankan query.
+* Membantu meningkatkan kecepatan dan efisiensi akses data pada sistem.
 
 
 
@@ -136,7 +137,7 @@ Contoh atribut:
 
 ### Metode
 
-Backup otomatis menggunakan:
+Proses backup database dilakukan secara otomatis menggunakan beberapa tools,yaitu:
 
 * mysqldump
 * Windows Task Scheduler
@@ -144,19 +145,19 @@ Backup otomatis menggunakan:
 
 ### Jadwal
 
-Setiap pukul 00.00 WIB
+Backup database dijalankan setiap hari pada pukul 00.00 WIB.
 
 ### Tujuan
 
-Mengurangi risiko kehilangan data akibat kerusakan sistem atau kesalahan pengguna.
+Backup dilakukan untuk menjaga keamanan data dan mengurangi kemungkinan kehilangan data apabila terjadi error pada sistem atau kesalahan saat penggunaan aplikasi.
 
 
 
 ## Struktur Database
 
-Database: camprent
+Database yang digunakan pada project ini bernama camprent.
 
-Tabel utama:
+Beberapa tabel utama yang digunakan, yaitu:
 
 * pengguna
 * alat_camping
