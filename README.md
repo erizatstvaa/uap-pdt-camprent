@@ -4,7 +4,7 @@
 
 CampRent adalah sistem penyewaan peralatan camping berbasis web yang dirancang untuk membantu proses pengelolaan penyewaan alat camping secara lebih efektif dan terkomputerisasi. Sistem ini memungkinkan pelanggan melakukan pemesanan alat camping secara online, sedangkan admin dapat mengelola data alat, transaksi penyewaan, pengembalian, serta laporan penyewaan.
 
----
+
 
 ## Anggota Kelompok
 - 2217051159  
@@ -24,7 +24,7 @@ CampRent adalah sistem penyewaan peralatan camping berbasis web yang dirancang u
 * Laragon
 * GitHub
 
----
+
 
 ## Fitur Utama
 
@@ -57,7 +57,7 @@ CampRent adalah sistem penyewaan peralatan camping berbasis web yang dirancang u
 * Laporan transaksi penyewaan
 * Monitoring aktivitas penyewaan
 
----
+
 
 # Implementasi Materi Praktikum PDT
 
@@ -80,7 +80,7 @@ Trigger dijalankan secara otomatis ketika status penyewaan berubah menjadi **"Di
 
 Database MySQL → Trigger `trigger_pengembalian_alat`
 
----
+
 
 ## 2. Task Scheduler
 
@@ -101,7 +101,7 @@ Event Scheduler dijalankan otomatis setiap hari untuk memeriksa data penyewaan y
 
 Database MySQL → Event Scheduler
 
----
+
 
 ## 3. Fragmentasi Data
 
@@ -132,7 +132,7 @@ Contoh atribut:
 * Mengurangi data yang diproses saat query dijalankan.
 * Meningkatkan efisiensi akses data.
 
----
+
 
 ## 4. Backup Database
 
@@ -152,7 +152,7 @@ Setiap pukul 00.00 WIB
 
 Mengurangi risiko kehilangan data akibat kerusakan sistem atau kesalahan pengguna.
 
----
+
 
 ## Struktur Database
 
@@ -166,7 +166,7 @@ Tabel utama:
 * detail_penyewaan
 * pengembalian
 
----
+
 
 ## Cara Menjalankan Sistem
 
@@ -205,7 +205,7 @@ C:\laragon\www\camprent
 http://localhost/camprent
 ```
 
----
+
 
 ## Screenshot Sistem
 
@@ -229,7 +229,7 @@ http://localhost/camprent
 
 (Tambahkan screenshot)
 
----
+
 
 ## Lisensi
 
